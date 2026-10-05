@@ -65,6 +65,22 @@ docker compose exec web python manage.py createsuperuser
 
 Product photos are stored in the `media` volume.
 
+## Free preview on Render
+
+`render.yaml` sets up the site and a Postgres database in one go.
+
+1. Sign in at [render.com](https://render.com) with GitHub (no card needed).
+2. **New → Blueprint**, pick this repo, click **Apply**.
+3. When asked, fill in `DJANGO_ADMIN_PASSWORD` (panel login, username `rashad`)
+   and `SHOP_WHATSAPP` (digits only, e.g. `9613123456`).
+4. Wait for the first deploy, then open the `…onrender.com` link. The panel is at `/panel/`.
+
+Preview limits on the free plan: the site sleeps after 15 minutes without visitors
+(the first visit then takes about a minute), the free database expires after 30 days, and
+photos uploaded in the panel disappear when the site restarts. That's fine for showing
+it around, not for real stock. `SEED_DEMO=true` loads the example shoes; set it to
+`false` once real stock goes in.
+
 ## Tests
 
 ```bash

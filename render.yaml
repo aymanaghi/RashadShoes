@@ -1,0 +1,36 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repo.
+# Free plan = preview only: sleeps after 15 min idle, free database expires after 30 days,
+# uploaded photos are lost on restart. Move to paid plans (or another host) before going live.
+services:
+  - type: web
+    name: rashadshoes
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: bash bin/start.sh
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rashadshoes-db
+          property: connectionString
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: .onrender.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: DJANGO_ADMIN_USERNAME
+        value: rashad
+      - key: DJANGO_ADMIN_PASSWORD
+        sync: false
+      - key: SHOP_WHATSAPP
+        sync: false
+      - key: SEED_DEMO
+        value: "true"
+
+databases:
+  - name: rashadshoes-db
+    plan: free
