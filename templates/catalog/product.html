@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static shop %}
+
+{% block title %}{{ product }} · {{ shop.NAME }}{% endblock %}
+{% block description %}{{ product }} in {{ shop.CITY }}. {{ product.price|money }}. Pick your size and order on WhatsApp.{% endblock %}
+
+{% block content %}
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="{% url 'catalog:list' %}">All shoes</a>
+  <span>/</span>
+  <a href="{% url 'catalog:list' %}?gender={{ product.gender }}">{{ product.get_gender_display }}</a>
+  {% if product.category %}<span>/</span><a href="{% url 'catalog:list' %}?category={{ product.category.slug }}">{{ product.category }}</a>{% endif %}
+</nav>
+
+<article class="pdp">
+  <div class="pdp__gallery">
+    {% if gallery %}
+      {% for img in gallery %}
+        <img src="{{ img.image.url }}" alt="{{ product }}{% if img.color %}, {{ img.color }}{% endif %}" {% if not forloop.first %}loading="lazy"{% endif %}>
+      {% endfor %}
+    {% else %}
+      <div class="pdp__placeholder"><img src="{% static 'img/shoe-placeholder.svg' %}" alt=""></div>
+    {% endif %}
+  </div>
+
+  <div class="pdp__info">
+    <p class="eyebrow">{{ product.brand }}</p>
+    <h1>{{ product.name }}</h1>
+    <p class="price price--lg">
+      {% if selected %}{{ selected.price|money }}{% else %}{{ product.price|money }}{% endif %}
+      {% if product.on_sale %}<s>{{ product.compare_at_price|money }}</s>{% endif %}
+    </p>
+
+    {% if sold_out %}
+      <p class="notice">Sold out for now. Message us and we'll tell you when it's back.</p>
+    {% else %}
+      {% if colors|length > 1 %}
+      <div class="pick">
+        <p class="pick__label">Colour <strong>{{ color }}</strong></p>
+        <div class="pick__options">
+          {% for c in colors %}
+            {% if c.stock %}
+              <a class="opt {% if c.name == color %}is-on{% endif %}" href="?color={{ c.name|urlencode }}">{{ c.name }}</a>
+            {% else %}
+              <span class="opt is-out" title="Sold out">{{ c.name }}</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="pick">
+        <p class="pick__label">Size <small>EU</small> {% if selected %}<strong>{{ selected.size }}</strong>{% else %}<span class="muted">choose one</span>{% endif %}</p>
+        <div class="pick__options pick__options--sizes">
+          {% for v in sizes %}
+            {% if v.stock %}
+              <a class="size {% if selected and selected.pk == v.pk %}is-on{% endif %}" href="?color={{ color|urlencode }}&amp;size={{ v.size|urlencode }}" aria-label="Size {{ v.size }}{% if v.is_low %}, last pairs{% endif %}">
+                {{ v.size }}{% if v.is_low %}<i class="dot" aria-hidden="true"></i>{% endif %}
+              </a>
+            {% else %}
+              <span class="size is-out" aria-label="Size {{ v.size }} sold out">{{ v.size }}</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if selected and selected.is_low %}<p class="hint">Only {{ selected.stock }} pair{{ selected.stock|pluralize }} left in this size.</p>{% endif %}
+      </div>
+    {% endif %}
+
+    <div class="buy">
+      {% if whatsapp_link %}
+        <a class="btn btn--wa btn--block" href="{{ whatsapp_link }}" rel="noopener">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
+          {% if selected %}Order size {{ selected.size }} on WhatsApp{% else %}Ask on WhatsApp{% endif %}
+        </a>
+        {% if not selected and not sold_out %}<p class="hint">Pick your size first and we'll put it in the message for you.</p>{% endif %}
+      {% else %}
+        <p class="notice">WhatsApp ordering opens soon.</p>
+      {% endif %}
+      <ul class="perks">
+        <li>Cash on delivery, Whish or OMT</li>
+        <li>Delivery all over Lebanon</li>
+      </ul>
+    </div>
+
+    {% if product.description %}<div class="pdp__desc">{{ product.description|linebreaks }}</div>{% endif %}
+    {% if selected %}<p class="code">Code {{ selected.sku }}</p>{% endif %}
+  </div>
+</article>
+
+{% if related %}
+<section class="shop shop--related">
+  <div class="results__head"><h2>You might also like</h2></div>
+  <div class="grid">
+    {% for product in related %}{% include "partials/product_card.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

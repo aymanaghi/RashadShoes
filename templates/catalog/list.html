@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load shop %}
+
+{% block content %}
+{% if not filtered %}
+<section class="hero">
+  <div class="hero__inner">
+    <p class="eyebrow">{{ shop.CITY }} · Delivery all over Lebanon</p>
+    <h1>Find your pair, pick your size, order on WhatsApp.</h1>
+    <p class="hero__sub">Every size you see here is on the shelf right now.</p>
+  </div>
+</section>
+{% endif %}
+
+<section class="shop">
+  <form class="filters" method="get" id="filters">
+    <div class="chips" role="group" aria-label="Who for">
+      <a class="chip {% if not selected.gender %}is-on{% endif %}" href="{% query_with gender='' %}">All</a>
+      {% for value, label in genders %}
+        <a class="chip {% if selected.gender == value %}is-on{% endif %}" href="{% query_with gender=value %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    {% if selected.gender %}<input type="hidden" name="gender" value="{{ selected.gender }}">{% endif %}
+    {% if selected.size %}<input type="hidden" name="size" value="{{ selected.size }}">{% endif %}
+
+    <div class="filters__row">
+      <label class="field">
+        <span>Search</span>
+        <input type="search" name="q" id="q" value="{{ selected.q }}" placeholder="Brand, model, colour or code">
+      </label>
+      <label class="field">
+        <span>Type</span>
+        <select name="category" id="category" data-autosubmit>
+          <option value="">All types</option>
+          {% for c in categories %}<option value="{{ c.slug }}" {% if selected.category == c.slug %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Brand</span>
+        <select name="brand" id="brand" data-autosubmit>
+          <option value="">All brands</option>
+          {% for b in brands %}<option value="{{ b.slug }}" {% if selected.brand == b.slug %}selected{% endif %}>{{ b.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <noscript><button class="btn btn--ghost" type="submit">Filter</button></noscript>
+    </div>
+
+    {% if sizes %}
+    <div class="sizebar" role="group" aria-label="Your size (EU)">
+      <span class="sizebar__label">Your size <small>EU</small></span>
+      <div class="sizebar__list">
+        {% for s in sizes %}
+          <a class="size {% if selected.size == s %}is-on{% endif %}" href="{% if selected.size == s %}{% query_with size='' %}{% else %}{% query_with size=s %}{% endif %}">{{ s }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </form>
+
+  <div class="results__head">
+    <h2>{% if filtered %}{{ products|length }} shoe{{ products|length|pluralize }} found{% else %}All shoes{% endif %}</h2>
+    {% if filtered %}<a class="link" href="{% url 'catalog:list' %}">Clear filters</a>{% endif %}
+  </div>
+
+  {% if products %}
+    <div class="grid">
+      {% for product in products %}{% include "partials/product_card.html" %}{% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">
+      <p><strong>Nothing matches yet.</strong></p>
+      <p>Try another size or brand, or ask us on WhatsApp. New pairs arrive every week.</p>
+      {% if shop_whatsapp %}<a class="btn btn--wa" href="https://wa.me/{{ shop_whatsapp }}" rel="noopener">Ask on WhatsApp</a>{% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll("[data-autosubmit]").forEach(function (el) {
+    el.addEventListener("change", function () { el.form.submit(); });
+  });
+</script>
+{% endblock %}

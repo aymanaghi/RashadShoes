@@ -1,0 +1,17 @@
+{% load static shop %}<a class="card" href="{{ product.get_absolute_url }}">
+  <div class="card__img">
+    {% with img=product.images.all|first %}
+      {% if img %}<img src="{{ img.image.url }}" alt="{{ product }}" loading="lazy">
+      {% else %}<img class="placeholder" src="{% static 'img/shoe-placeholder.svg' %}" alt="">{% endif %}
+    {% endwith %}
+    {% if product.on_sale %}<span class="badge badge--sale">Sale</span>{% endif %}
+  </div>
+  <div class="card__body">
+    <span class="card__brand">{{ product.brand }}</span>
+    <span class="card__name">{{ product.name }}</span>
+    <span class="price">
+      {{ product.price|money }}
+      {% if product.on_sale %}<s>{{ product.compare_at_price|money }}</s>{% endif %}
+    </span>
+  </div>
+</a>

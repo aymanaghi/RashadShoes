@@ -1,0 +1,45 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ shop.NAME }} · {{ shop.CITY }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}Shoes for men, women and kids in {{ shop.CITY }}. Order on WhatsApp, delivery across Lebanon.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="logo" href="{% url 'catalog:list' %}">
+        <span class="logo__mark">R</span>
+        <span class="logo__text">{{ shop.NAME }}<small>{{ shop.CITY }}</small></span>
+      </a>
+      <nav class="mainnav" aria-label="Shop by">
+        <a href="{% url 'catalog:list' %}?gender=men">Men</a>
+        <a href="{% url 'catalog:list' %}?gender=women">Women</a>
+        <a href="{% url 'catalog:list' %}?gender=kids">Kids</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div>
+        <strong>{{ shop.NAME }}</strong>
+        <p>Shoe shop in {{ shop.CITY }}, Lebanon. Delivery all over Lebanon.</p>
+      </div>
+      <div class="footer__links">
+        {% if shop_whatsapp %}<a href="https://wa.me/{{ shop_whatsapp }}" rel="noopener">WhatsApp +{{ shop_whatsapp }}</a>{% endif %}
+        {% if shop.INSTAGRAM %}<a href="https://www.instagram.com/{{ shop.INSTAGRAM }}/" rel="noopener">Instagram @{{ shop.INSTAGRAM }}</a>{% endif %}
+      </div>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
